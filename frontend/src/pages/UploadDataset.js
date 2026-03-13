@@ -18,7 +18,7 @@ function UploadDataset() {
   const formData = new FormData();
   formData.append("file", file);
 
-  await fetch("https://ideal-space-disco-g47vx4prvrwv29rxx-8000.app.github.dev/upload", {
+  await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
   method: "POST",
   body: formData
 });

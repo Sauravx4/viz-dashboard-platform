@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

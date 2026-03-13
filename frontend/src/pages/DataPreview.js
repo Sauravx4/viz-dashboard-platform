@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function DataPreview() {
 
@@ -8,7 +9,7 @@ function DataPreview() {
 
   useEffect(() => {
 
-    axios.get("https://ideal-space-disco-g47vx4prvrwv29rxx-8000.app.github.dev/preview")
+    axios.get(`${process.env.REACT_APP_API_URL}/preview`)
       .then((response) => {
 
         setColumns(response.data.columns);
@@ -48,6 +49,17 @@ function DataPreview() {
         </tbody>
 
       </table>
+      <Link to="/visualize">
+  <button style={{ marginTop: "20px" }}>
+    Open Visualization
+  </button>
+</Link>
+<Link to="/dashboard">
+  <button style={{ marginLeft: "20px" }}>
+    Open Dashboard
+  </button>
+</Link>
+
 
     </div>
 
