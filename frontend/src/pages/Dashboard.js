@@ -1,119 +1,167 @@
-import { useState, useEffect, useRef } from "react";
-import GridLayout from "react-grid-layout";
-import AutoChart from "../components/AutoChart";
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+import DashboardGrid from "../components/DashboardGrid";
+import FieldsPanel from "../components/FieldsPanel";
+import ChartBuilder from "../components/ChartBuilder";
+import FiltersPanel from "../components/FiltersPanel";
+import DashboardToolbar from "../components/DashboardToolbar";
+import DatasetProfiler from "../components/DatasetProfiler";
+import NLQueryBox from "../components/NLQueryBox";
+import InsightsPanel from "../components/InsightsPanel";
+
+import { generateChartSuggestions } from "../utils/chartSuggestions";
 
 function Dashboard() {
 
-  const dashboardRef = useRef();
+  const location = useLocation();
 
-  const [layout, setLayout] = useState([
-    { i: "chart1", x: 0, y: 0, w: 6, h: 6 },
-    { i: "chart2", x: 6, y: 0, w: 6, h: 6 }
-  ]);
+  // Safe localStorage dataset load
+  const storedDataset = localStorage.getItem("dataset");
 
-  const [data, setData] = useState([]);
+  const initialData =
+    location.state?.dataset ||
+    (storedDataset ? JSON.parse(storedDataset) : []);
 
-  // Fetch data from backend
+  const [dataset, setDataset] = useState(initialData);
+  const [filteredData, setFilteredData] = useState(initialData);
+  const [charts, setCharts] = useState([]);
+
+  // Save dataset for persistence
   useEffect(() => {
 
-    fetch("http://localhost:8000/preview")
-      .then(res => res.json())
-      .then(result => {
-        setData(result.rows);
-      });
+    if (dataset && dataset.length > 0) {
+      localStorage.setItem("dataset", JSON.stringify(dataset));
+    }
 
-  }, []);
+  }, [dataset]);
 
-  const exportImage = async () => {
 
-    const canvas = await html2canvas(dashboardRef.current);
 
-    const link = document.createElement("a");
-    link.download = "dashboard.png";
-    link.href = canvas.toDataURL();
-    link.click();
+  // -----------------------
+  // Add Chart
+  // -----------------------
+  const addChart = (type, x, y) => {
+
+    const newChart = {
+      id: Date.now(),
+      type,
+      xAxis: x,
+      yAxis: y,
+      layout: {
+        x: (charts.length * 4) % 12,
+        y: Infinity,
+        w: 4,
+        h: 4
+      }
+    };
+
+    setCharts([...charts, newChart]);
+
   };
 
-  const exportPDF = async () => {
 
-    const canvas = await html2canvas(dashboardRef.current);
-    const imgData = canvas.toDataURL("image/png");
+  // -----------------------
+  // Update Grid Layout
+  // -----------------------
+  const updateLayout = (layout) => {
 
-    const pdf = new jsPDF("landscape");
+    const updatedCharts = charts.map((chart, i) => ({
+      ...chart,
+      layout: layout[i]
+    }));
 
-    pdf.addImage(imgData, "PNG", 10, 10, 280, 150);
+    setCharts(updatedCharts);
 
-    pdf.save("dashboard.pdf");
-  };
-  const [charts, setCharts] = useState([]);
-  const addChart = (type) => {
-
-  const newChart = {
-    id: "chart" + (charts.length + 1),
-    type: type
   };
 
-  setCharts([...charts, newChart]);
 
-  setLayout([
-    ...layout,
-    { i: newChart.id, x: 0, y: Infinity, w: 6, h: 6 }
-  ]);
-};
+  // -----------------------
+  // Auto Chart Suggestions
+  // -----------------------
+  const autoGenerateCharts = () => {
 
+    const suggestions = generateChartSuggestions(filteredData);
+
+    const newCharts = suggestions.map((s, index) => ({
+      id: Date.now() + index,
+      type: s.type,
+      xAxis: s.xAxis,
+      yAxis: s.yAxis,
+      layout: {
+        x: (index * 4) % 12,
+        y: Math.floor(index / 3) * 4,
+        w: 4,
+        h: 4
+      }
+    }));
+
+    setCharts(newCharts);
+
+  };
+
+
+  // -----------------------
+  // No Dataset Guard
+  // -----------------------
+  if (!dataset || dataset.length === 0) {
+    return (
+      <div style={{ padding: "40px" }}>
+        <h2>No dataset loaded</h2>
+        <p>Please upload a dataset first.</p>
+      </div>
+    );
+  }
+
+
+  // -----------------------
+  // Dashboard UI
+  // -----------------------
   return (
 
-    <div style={{ padding: "20px" }}>
+    <div>
 
-      <h1>Dashboard Builder</h1>
+      {/* Toolbar */}
+      <DashboardToolbar autoGenerateCharts={autoGenerateCharts} />
 
-      <button onClick={exportImage}>Download Image</button>
+      {/* Natural Language Query Box */}
+      <NLQueryBox addChart={addChart} />
 
-      <button onClick={exportPDF} style={{ marginLeft: "10px" }}>
-        Download PDF
-      </button>
-      <button onClick={() => addChart("line")}>Add Line Chart</button>
-<button onClick={() => addChart("bar")}>Add Bar Chart</button>
-<button onClick={() => addChart("pie")}>Add Pie Chart</button>
+      {/* AI Insights */}
+      <InsightsPanel />
 
-      <div ref={dashboardRef}>
+      {/* Dataset Profile */}
+      <DatasetProfiler dataset={dataset} />
 
-        <GridLayout
-          className="layout"
-          layout={layout}
-          cols={12}
-          rowHeight={60}
-          width={1200}
-          onLayoutChange={(newLayout) => setLayout(newLayout)}
-        >
+      <div style={{ display: "flex", height: "85vh" }}>
 
-          {charts.map((chart) => (
+        {/* Fields Panel */}
+        <FieldsPanel dataset={dataset} />
 
-  <div key={chart.id} style={{
-    background:"#fff",
-    padding:"10px",
-    border:"1px solid #ddd"
-  }}>
+        {/* Filters Panel */}
+        <FiltersPanel
+          dataset={dataset}
+          setFilteredData={setFilteredData}
+        />
 
-    <AutoChart
-      data={data}
-      type={chart.type}
-    />
+        {/* Dashboard Canvas */}
+        <div style={{ flex: 1, padding: "10px" }}>
+          <DashboardGrid
+            charts={charts}
+            dataset={filteredData}
+            updateLayout={updateLayout}
+          />
+        </div>
 
-  </div>
-
-))}
-
-        </GridLayout>
+        {/* Chart Builder */}
+        <ChartBuilder addChart={addChart} />
 
       </div>
 
     </div>
+
   );
+
 }
 
 export default Dashboard;

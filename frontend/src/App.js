@@ -1,5 +1,11 @@
+import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+
+// Pages
 import UploadDataset from "./pages/UploadDataset";
 import DataPreview from "./pages/DataPreview";
 import Visualization from "./pages/Visualization";
@@ -9,23 +15,44 @@ function App() {
 
   return (
 
-    <Router>
+    <DndProvider backend={HTML5Backend}>
 
-      <Routes>
+      <Router>
 
-        <Route path="/" element={<UploadDataset />} />
+        <Routes>
 
-        <Route path="/preview" element={<DataPreview />} />
+          {/* Upload dataset page */}
+          <Route
+            path="/"
+            element={<UploadDataset />}
+          />
 
-        <Route path="/visualize" element={<Visualization />} />
+          {/* Data preview page */}
+          <Route
+            path="/preview"
+            element={<DataPreview />}
+          />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+          {/* Visualization builder */}
+          <Route
+            path="/visualize"
+            element={<Visualization />}
+          />
 
-      </Routes>
+          {/* Main dashboard */}
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
+          />
 
-    </Router>
+        </Routes>
+
+      </Router>
+
+    </DndProvider>
 
   );
+
 }
 
 export default App;

@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getPreview } from "../services/api";
 
 function DataPreview() {
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
 
-    axios.get(`${process.env.REACT_APP_API_URL}/preview`)
-      .then((response) => {
+  const storedRows = JSON.parse(localStorage.getItem("dataset")) || [];
+  const storedCols = JSON.parse(localStorage.getItem("columns")) || [];
 
-        setColumns(response.data.columns);
-        setData(response.data.rows);
+  setData(storedRows);
+  setColumns(storedCols);
 
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-
-  }, []);
+}, []);
 
   return (
 
@@ -49,17 +46,20 @@ function DataPreview() {
         </tbody>
 
       </table>
-      <Link to="/visualize">
-  <button style={{ marginTop: "20px" }}>
-    Open Visualization
-  </button>
-</Link>
-<Link to="/dashboard">
-  <button style={{ marginLeft: "20px" }}>
-    Open Dashboard
-  </button>
-</Link>
 
+      <button
+        style={{ marginTop: "20px" }}
+        onClick={() => navigate("/visualize", { state: { dataset: data } })}
+      >
+        Open Visualization
+      </button>
+
+      <button
+        style={{ marginLeft: "20px" }}
+        onClick={() => navigate("/dashboard", { state: { dataset: data } })}
+      >
+        Open Dashboard
+      </button>
 
     </div>
 
