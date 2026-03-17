@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import DashboardGrid from "../components/DashboardGrid";
 import FieldsPanel from "../components/FieldsPanel";
@@ -9,12 +9,14 @@ import DashboardToolbar from "../components/DashboardToolbar";
 import DatasetProfiler from "../components/DatasetProfiler";
 import NLQueryBox from "../components/NLQueryBox";
 import InsightsPanel from "../components/InsightsPanel";
+import RecommendationsPanel from "../components/RecommendationsPanel";
 
 import { generateChartSuggestions } from "../utils/chartSuggestions";
 
 function Dashboard() {
 
   const location = useLocation();
+  const { id } = useParams(); // ✅ get dashboard id
 
   // Safe localStorage dataset load
   const storedDataset = localStorage.getItem("dataset");
@@ -23,19 +25,48 @@ function Dashboard() {
     location.state?.dataset ||
     (storedDataset ? JSON.parse(storedDataset) : []);
 
-  const [dataset, setDataset] = useState(initialData);
+  const [dataset] = useState(initialData);
   const [filteredData, setFilteredData] = useState(initialData);
   const [charts, setCharts] = useState([]);
 
-  // Save dataset for persistence
+  // -----------------------
+  // ✅ Load dashboard from backend (UPDATED FIX)
+  // -----------------------
   useEffect(() => {
 
+    if (id) {
+
+      fetch(`https://your-codespace-8000.app.github.dev/dashboard/${id}`)
+        .then(res => res.json())
+        .then(data => {
+
+          if (data && data.data) {
+
+            const loadedCharts = data.data.map((chart, index) => ({
+              ...chart,
+              layout: data.layout[index] || chart.layout
+            }));
+
+            setCharts(loadedCharts);
+
+          }
+
+        })
+        .catch(() => {
+          console.log("Failed to load dashboard");
+        });
+
+    }
+
+  }, [id]);
+
+
+  // Save dataset for persistence
+  useEffect(() => {
     if (dataset && dataset.length > 0) {
       localStorage.setItem("dataset", JSON.stringify(dataset));
     }
-
   }, [dataset]);
-
 
 
   // -----------------------
@@ -57,7 +88,6 @@ function Dashboard() {
     };
 
     setCharts([...charts, newChart]);
-
   };
 
 
@@ -72,7 +102,6 @@ function Dashboard() {
     }));
 
     setCharts(updatedCharts);
-
   };
 
 
@@ -122,13 +151,19 @@ function Dashboard() {
     <div>
 
       {/* Toolbar */}
-      <DashboardToolbar autoGenerateCharts={autoGenerateCharts} />
+      <DashboardToolbar
+        autoGenerateCharts={autoGenerateCharts}
+        charts={charts}
+      />
 
-      {/* Natural Language Query Box */}
+      {/* Natural Language Query */}
       <NLQueryBox addChart={addChart} />
 
       {/* AI Insights */}
       <InsightsPanel />
+
+      {/* GPT Chart Recommendations */}
+      <RecommendationsPanel addChart={addChart} />
 
       {/* Dataset Profile */}
       <DatasetProfiler dataset={dataset} />
@@ -161,7 +196,6 @@ function Dashboard() {
     </div>
 
   );
-
 }
 
 export default Dashboard;

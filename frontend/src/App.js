@@ -22,28 +22,17 @@ function App() {
         <Routes>
 
           {/* Upload dataset page */}
-          <Route
-            path="/"
-            element={<UploadDataset />}
-          />
+          <Route path="/" element={<UploadDataset />} />
 
           {/* Data preview page */}
-          <Route
-            path="/preview"
-            element={<DataPreview />}
-          />
+          <Route path="/preview" element={<DataPreview />} />
 
           {/* Visualization builder */}
-          <Route
-            path="/visualize"
-            element={<Visualization />}
-          />
+          <Route path="/visualize" element={<Visualization />} />
 
-          {/* Main dashboard */}
-          <Route
-            path="/dashboard"
-            element={<Dashboard />}
-          />
+          {/* ✅ Support both normal + saved dashboards */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/:id" element={<Dashboard />} />
 
         </Routes>
 

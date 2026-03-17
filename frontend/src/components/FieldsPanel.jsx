@@ -4,7 +4,7 @@ function Field({ name }) {
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "FIELD",
-    item: { name },
+    item: { name: name }, // ✅ Explicit fix applied
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })

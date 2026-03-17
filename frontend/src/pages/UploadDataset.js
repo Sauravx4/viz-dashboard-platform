@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_URL = process.env.REACT_APP_API_URL || "https://ideal-space-disco-g47vx4prvrwv29rxx-8000.app.github.dev/";
 
 function UploadDataset() {
 

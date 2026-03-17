@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPreview } from "../services/api";
 
 function DataPreview() {
 
@@ -11,13 +10,13 @@ function DataPreview() {
 
   useEffect(() => {
 
-  const storedRows = JSON.parse(localStorage.getItem("dataset")) || [];
-  const storedCols = JSON.parse(localStorage.getItem("columns")) || [];
+    const storedRows = JSON.parse(localStorage.getItem("dataset")) || [];
+    const storedCols = JSON.parse(localStorage.getItem("columns")) || [];
 
-  setData(storedRows);
-  setColumns(storedCols);
+    setData(storedRows);
+    setColumns(storedCols);
 
-}, []);
+  }, []);
 
   return (
 
