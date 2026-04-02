@@ -1,5 +1,5 @@
 ## 🌐 Portfolio
-👉 (https://sauravx4.github.io/SM-portfolio)
+👉 https://sauravcodease.vercel.app
 # 📊 AI Dashboard Builder  
 ### 🚀 Data Visualization Platform (React + FastAPI)
 
@@ -133,6 +133,8 @@ Export / Save Dashboard
 /screenshots/charts.png
 🚀 Future Enhancements
 
+```
+
 🤖 AI-based chart recommendations
 
 🎨 Theme customization
@@ -155,12 +157,12 @@ Portfolio projects
 
 👨‍💻 Author
 
-Saurav
+# Saurav
 Data Analyst | Frontend & Backend Developer
 
 ⭐ Support
 
-If you like this project:
+# If you like this project:
 
 ⭐ Star the repository
 
@@ -168,7 +170,7 @@ If you like this project:
 
 🛠 Contribute
 
-📜 License
+# 📜 License
 
 This project is open-source and available under the MIT License.
 
